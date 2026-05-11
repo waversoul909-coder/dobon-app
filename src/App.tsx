@@ -43,7 +43,7 @@ type GameState = {
   lastPlayedByIndex: number | null;
 };
 
-type PlayerPosition = "you" | "left" | "top" | "bottom";
+type PlayerPosition = "you" | "left" | "top" | "right" | "bottom";
 
 type ActionAnimation = {
   kind: "play" | "draw";
@@ -572,6 +572,13 @@ function App() {
 
   function playerPosition(index: number): PlayerPosition {
     if (index === 0) return "you";
+
+    if (isMobile) {
+      if (index === 1) return "left";
+      if (index === 2) return "top";
+      return "right";
+    }
+
     if (index === 1) return "bottom";
     if (index === 2) return "left";
     return "top";
@@ -1586,29 +1593,29 @@ function App() {
           </div>
         )}
 
-        <div style={isMobile ? mobileGameBoardStyle : gameBoardStyle}>
-          <div style={isMobile ? mobileLeftCpuAreaStyle : leftCpuAreaStyle}>
-            <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === leftCpuPlayer.id}>
-              <CpuHand
-                name={leftCpuPlayer.name}
-                hand={leftCpuPlayer.hand}
-                reveal={game.roundOver}
-              />
-            </TurnFrame>
-          </div>
-
-          <div style={isMobile ? mobileCenterBoardAreaStyle : centerBoardAreaStyle}>
-            <div style={isMobile ? mobileTopCpuAreaStyle : undefined}>
-              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === topCpuPlayer.id}>
-              <CpuHand
-                name={topCpuPlayer.name}
-                hand={topCpuPlayer.hand}
-                reveal={game.roundOver}
-              />
-            </TurnFrame>
+        {isMobile ? (
+          <div style={mobileGameBoardStyle}>
+            <div style={mobileTopCpuAreaStyle}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === leftCpuPlayer.id}>
+                <CpuHand
+                  name={leftCpuPlayer.name}
+                  hand={leftCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
             </div>
 
-            <div style={isMobile ? mobileCenterTableStyle : centerTableStyle}>
+            <div style={mobileLeftCpuAreaStyle}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === bottomCpuPlayer.id}>
+                <CpuHand
+                  name={bottomCpuPlayer.name}
+                  hand={bottomCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
+            </div>
+
+            <div style={mobileCenterTableStyle}>
               <div style={{ textAlign: "center" }}>
                 <p style={{ margin: "4px 0" }}>山札</p>
 
@@ -1662,222 +1669,511 @@ function App() {
               </div>
             </div>
 
-            <div style={isMobile ? mobileRightCpuAreaStyle : undefined}>
-              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === bottomCpuPlayer.id}>
-              <CpuHand
-                name={bottomCpuPlayer.name}
-                hand={bottomCpuPlayer.hand}
-                reveal={game.roundOver}
-              />
-            </TurnFrame>
+            <div style={mobileRightCpuAreaStyle}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === topCpuPlayer.id}>
+                <CpuHand
+                  name={topCpuPlayer.name}
+                  hand={topCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
             </div>
-          </div>
 
-          <div style={isMobile ? mobilePlayerPanelStyle : playerPanelStyle}>
-            <div style={playerControlBoxStyle(isYourTurn && !game.roundOver)}>
-              <DirectionIndicator direction={game.direction} />
+            <div style={mobilePlayerPanelStyle}>
+              <div style={playerControlBoxStyle(isYourTurn && !game.roundOver)}>
+                <DirectionIndicator direction={game.direction} />
 
-              {game.requestedSuits && (
-                <div style={requestedSuitPlayerNoticeStyle}>
-                  指定条件：{requestedSuitsLabel(game.requestedSuits)}
-                </div>
-              )}
-
-              {game.waitingForSuitSelect && isYourTurn && (
-                <div style={suitSelectAreaInHandStyle}>
-                  <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
-                    出せるスート条件を選んでください
-                  </div>
-
-                  <SuitSelectPanel
-                    selectedSuits={selectedSuits}
-                    toggleSuit={toggleSuit}
-                    setSelectedSuits={setSelectedSuits}
-                  />
-
-                  <button
-                    onClick={confirmSuitSelect}
-                    disabled={selectedSuits.length === 0}
-                    style={{
-                      marginTop: "10px",
-                      padding: "8px 18px",
-                      borderRadius: "999px",
-                      border: "2px solid white",
-                      backgroundColor:
-                        selectedSuits.length > 0 ? "#facc15" : "#6b7280",
-                      color: selectedSuits.length > 0 ? "#111827" : "#d1d5db",
-                      fontWeight: "bold",
-                      cursor: selectedSuits.length > 0 ? "pointer" : "not-allowed",
-                    }}
-                  >
-                    スートを指定する
-                  </button>
-                </div>
-              )}
-
-              <div style={beginnerBoxStyle}>
-                <div style={{ fontSize: "14px" }}>
-                  {expertMode ? "上級者モード" : "初心者モード"}
-                </div>
-                {!expertMode && (
-                  <div style={{ fontSize: "18px", marginTop: "2px" }}>
-                    手札合計：{yourHandTotal}
+                {game.requestedSuits && (
+                  <div style={requestedSuitPlayerNoticeStyle}>
+                    指定条件：{requestedSuitsLabel(game.requestedSuits)}
                   </div>
                 )}
-                {expertMode && (
-                  <div style={{ fontSize: "13px", marginTop: "2px", opacity: 0.85 }}>
-                    手札合計は自分で計算！失敗ドボンは2枚ドロー
-                  </div>
-                )}
-                <button
-                  onClick={dobon}
-                  disabled={(!expertMode && !canDobon) || isOverlayOpen || game.roundOver}
-                  style={dobonButtonStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
-                  aria-label="ドボン"
-                >
-                  <img
-                    src="/images/dobon_logo.png"
-                    alt="ドボン"
-                    style={dobonButtonLogoStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
-                  />
-                </button>
-                <button
-                  onClick={() => {
-                    if (isOverlayOpen) return;
-                    setMultiSelectMode((current) => !current);
-                    setSelectedCardIndexes([]);
-                    setTopCardIndex(null);
-                  }}
-                  disabled={game.roundOver || isDobonReception || isOverlayOpen}
-                  style={{
-                    marginTop: "8px",
-                    padding: "6px 16px",
-                    borderRadius: "999px",
-                    border: "2px solid white",
-                    backgroundColor: multiSelectMode ? "#22c55e" : "#374151",
-                    color: "white",
-                    fontWeight: "bold",
-                    cursor: game.roundOver || isDobonReception || isOverlayOpen ? "not-allowed" : "pointer",
-                    opacity: game.roundOver || isDobonReception || isOverlayOpen ? 0.45 : 1,
-                  }}
-                >
-                  {multiSelectMode ? "複数枚選択中" : "複数枚出しモード"}
-                </button>
 
-                {multiSelectMode && selectedCardIndexes.length >= 2 && (
-                  <div style={topCardSelectBoxStyle}>
-                    <div style={{ fontSize: "12px", marginBottom: "6px" }}>
-                      上にするカードを選んでください
+                {game.waitingForSuitSelect && isYourTurn && (
+                  <div style={suitSelectAreaInHandStyle}>
+                    <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+                      出せるスート条件を選んでください
                     </div>
-                    <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
-                      {selectedCardIndexes.map((index) => {
-                        const card = yourHand[index];
-                        const selected = topCardIndex === index;
-                        return (
-                          <button
-                            key={index}
-                            onClick={() => setTopCardIndex(index)}
-                            style={{
-                              padding: "6px 10px",
-                              borderRadius: "999px",
-                              border: selected ? "3px solid #facc15" : "2px solid white",
-                              backgroundColor: selected ? "#facc15" : "white",
-                              color: isRedSuit(card.suit) ? "#dc2626" : "black",
-                              fontWeight: "bold",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {cardLabel(card)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
 
-                {multiSelectMode && (
-                  <button
-                    onClick={playSelectedCards}
-                    disabled={!canPlaySelectedCards}
-                    style={{
-                      marginTop: "8px",
-                      padding: "8px 20px",
-                      borderRadius: "999px",
-                      border: canPlaySelectedCards ? "3px solid white" : "2px solid #777",
-                      backgroundColor: canPlaySelectedCards ? "#22c55e" : "#4b5563",
-                      color: canPlaySelectedCards ? "white" : "#d1d5db",
-                      fontSize: "18px",
-                      fontWeight: "bold",
-                      cursor: canPlaySelectedCards ? "pointer" : "not-allowed",
-                    }}
-                  >
-                    選んだカードを出す
-                  </button>
-                )}
-              </div>
+                    <SuitSelectPanel
+                      selectedSuits={selectedSuits}
+                      toggleSuit={toggleSuit}
+                      setSelectedSuits={setSelectedSuits}
+                    />
 
-              <div style={handAreaStyle}>
-                {yourHand.map((card, index) => {
-                  const playable = isYourTurn && canPlayCards([card]);
-                  const selected = selectedCardIndexes.includes(index);
-                  const center = (yourHand.length - 1) / 2;
-                  const rotate = Math.max(-10, Math.min(10, (index - center) * 2.6));
-                  const overlap =
-                    yourHand.length >= 14
-                      ? "-57px"
-                      : yourHand.length >= 12
-                      ? "-54px"
-                      : yourHand.length >= 10
-                      ? "-50px"
-                      : yourHand.length >= 8
-                      ? "-43px"
-                      : yourHand.length >= 6
-                      ? "-32px"
-                      : "-20px";
-
-                  return (
                     <button
-                      key={`${card.suit}-${card.rank}-${index}`}
-                      onClick={() => toggleCard(index)}
+                      onClick={confirmSuitSelect}
+                      disabled={selectedSuits.length === 0}
                       style={{
-                        background: "none",
-                        border: selected
-                          ? topCardIndex === index
-                            ? "4px solid #facc15"
-                            : "4px solid #22c55e"
-                          : playable
-                          ? "3px solid #facc15"
-                          : "3px solid transparent",
-                        borderRadius: "14px",
-                        padding: selected ? "2px" : "3px",
-                        marginLeft: index === 0 ? 0 : overlap,
-                        marginTop: `${Math.abs(index - center) * 2}px`,
-                        cursor: playable ? "pointer" : "not-allowed",
-                        opacity: playable ? 1 : 0.35,
-                        transform: selected
-                          ? "translateY(-14px) scale(1.04)"
-                          : `rotate(${rotate}deg)`,
-                        transformOrigin: "50% 110%",
-                        transition: "transform 0.15s, margin 0.15s, box-shadow 0.15s",
-                        zIndex: selected ? 30 : index,
-                        boxShadow: selected
-                          ? topCardIndex === index
-                            ? "0 0 18px rgba(250,204,21,0.9)"
-                            : "0 0 18px rgba(34,197,94,0.9)"
-                          : playable
-                          ? "0 0 14px rgba(250,204,21,0.8)"
-                          : "none",
+                        marginTop: "10px",
+                        padding: "8px 18px",
+                        borderRadius: "999px",
+                        border: "2px solid white",
+                        backgroundColor:
+                          selectedSuits.length > 0 ? "#facc15" : "#6b7280",
+                        color: selectedSuits.length > 0 ? "#111827" : "#d1d5db",
+                        fontWeight: "bold",
+                        cursor: selectedSuits.length > 0 ? "pointer" : "not-allowed",
                       }}
                     >
-                      <PlayingCard card={card} />
+                      スートを指定する
                     </button>
-                  );
-                })}
+                  </div>
+                )}
+
+                <div style={beginnerBoxStyle}>
+                  <div style={{ fontSize: "14px" }}>
+                    {expertMode ? "上級者モード" : "初心者モード"}
+                  </div>
+                  {!expertMode && (
+                    <div style={{ fontSize: "18px", marginTop: "2px" }}>
+                      手札合計：{yourHandTotal}
+                    </div>
+                  )}
+                  {expertMode && (
+                    <div style={{ fontSize: "13px", marginTop: "2px", opacity: 0.85 }}>
+                      手札合計は自分で計算！失敗ドボンは2枚ドロー
+                    </div>
+                  )}
+                  <button
+                    onClick={dobon}
+                    disabled={(!expertMode && !canDobon) || isOverlayOpen || game.roundOver}
+                    style={dobonButtonStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
+                    aria-label="ドボン"
+                  >
+                    <img
+                      src="/images/dobon_logo.png"
+                      alt="ドボン"
+                      style={dobonButtonLogoStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
+                    />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isOverlayOpen) return;
+                      setMultiSelectMode((current) => !current);
+                      setSelectedCardIndexes([]);
+                      setTopCardIndex(null);
+                    }}
+                    disabled={game.roundOver || isDobonReception || isOverlayOpen}
+                    style={{
+                      marginTop: "8px",
+                      padding: "6px 16px",
+                      borderRadius: "999px",
+                      border: "2px solid white",
+                      backgroundColor: multiSelectMode ? "#22c55e" : "#374151",
+                      color: "white",
+                      fontWeight: "bold",
+                      cursor: game.roundOver || isDobonReception || isOverlayOpen ? "not-allowed" : "pointer",
+                      opacity: game.roundOver || isDobonReception || isOverlayOpen ? 0.45 : 1,
+                    }}
+                  >
+                    {multiSelectMode ? "複数枚選択中" : "複数枚出しモード"}
+                  </button>
+
+                  {multiSelectMode && selectedCardIndexes.length >= 2 && (
+                    <div style={topCardSelectBoxStyle}>
+                      <div style={{ fontSize: "12px", marginBottom: "6px" }}>
+                        上にするカードを選んでください
+                      </div>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
+                        {selectedCardIndexes.map((index) => {
+                          const card = yourHand[index];
+                          const selected = topCardIndex === index;
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => setTopCardIndex(index)}
+                              style={{
+                                padding: "6px 10px",
+                                borderRadius: "999px",
+                                border: selected ? "3px solid #facc15" : "2px solid white",
+                                backgroundColor: selected ? "#facc15" : "white",
+                                color: isRedSuit(card.suit) ? "#dc2626" : "black",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {cardLabel(card)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {multiSelectMode && (
+                    <button
+                      onClick={playSelectedCards}
+                      disabled={!canPlaySelectedCards}
+                      style={{
+                        marginTop: "8px",
+                        padding: "8px 20px",
+                        borderRadius: "999px",
+                        border: canPlaySelectedCards ? "3px solid white" : "2px solid #777",
+                        backgroundColor: canPlaySelectedCards ? "#22c55e" : "#4b5563",
+                        color: canPlaySelectedCards ? "white" : "#d1d5db",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        cursor: canPlaySelectedCards ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      選んだカードを出す
+                    </button>
+                  )}
+                </div>
+
+                <div style={handAreaStyle}>
+                  {yourHand.map((card, index) => {
+                    const playable = isYourTurn && canPlayCards([card]);
+                    const selected = selectedCardIndexes.includes(index);
+                    const center = (yourHand.length - 1) / 2;
+                    const rotate = Math.max(-10, Math.min(10, (index - center) * 2.6));
+                    const overlap =
+                      yourHand.length >= 14
+                        ? "-57px"
+                        : yourHand.length >= 12
+                        ? "-54px"
+                        : yourHand.length >= 10
+                        ? "-50px"
+                        : yourHand.length >= 8
+                        ? "-43px"
+                        : yourHand.length >= 6
+                        ? "-32px"
+                        : "-20px";
+
+                    return (
+                      <button
+                        key={`${card.suit}-${card.rank}-${index}`}
+                        onClick={() => toggleCard(index)}
+                        style={{
+                          background: "none",
+                          border: selected
+                            ? topCardIndex === index
+                              ? "4px solid #facc15"
+                              : "4px solid #22c55e"
+                            : playable
+                            ? "3px solid #facc15"
+                            : "3px solid transparent",
+                          borderRadius: "14px",
+                          padding: selected ? "2px" : "3px",
+                          marginLeft: index === 0 ? 0 : overlap,
+                          marginTop: `${Math.abs(index - center) * 2}px`,
+                          cursor: playable ? "pointer" : "not-allowed",
+                          opacity: playable ? 1 : 0.35,
+                          transform: selected
+                            ? "translateY(-14px) scale(1.04)"
+                            : `rotate(${rotate}deg)`,
+                          transformOrigin: "50% 110%",
+                          transition: "transform 0.15s, margin 0.15s, box-shadow 0.15s",
+                          zIndex: selected ? 30 : index,
+                          boxShadow: selected
+                            ? topCardIndex === index
+                              ? "0 0 18px rgba(250,204,21,0.9)"
+                              : "0 0 18px rgba(34,197,94,0.9)"
+                            : playable
+                            ? "0 0 14px rgba(250,204,21,0.8)"
+                            : "none",
+                        }}
+                      >
+                        <PlayingCard card={card} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <p style={{ marginTop: "10px", fontSize: "20px" }}>あなたの手札</p>
               </div>
-              <p style={{ marginTop: "10px", fontSize: "20px" }}>あなたの手札</p>
             </div>
           </div>
-        </div>
+        ) : (
+          <div style={gameBoardStyle}>
+            <div style={leftCpuAreaStyle}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === leftCpuPlayer.id}>
+                <CpuHand
+                  name={leftCpuPlayer.name}
+                  hand={leftCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
+            </div>
+
+            <div style={centerBoardAreaStyle}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === topCpuPlayer.id}>
+                <CpuHand
+                  name={topCpuPlayer.name}
+                  hand={topCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
+
+              <div style={centerTableStyle}>
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ margin: "4px 0" }}>山札</p>
+
+                  <button
+                    onClick={drawCard}
+                    disabled={!shouldDraw}
+                    style={{
+                      background: "none",
+                      border: shouldDraw ? "4px solid #facc15" : "none",
+                      borderRadius: "14px",
+                      padding: shouldDraw ? "4px" : 0,
+                      cursor: shouldDraw ? "pointer" : "not-allowed",
+                      opacity: shouldDraw ? 1 : 0.45,
+                      boxShadow: shouldDraw ? "0 0 18px rgba(250,204,21,0.9)" : "none",
+                    }}
+                  >
+                    <CardBack large extraLarge />
+                  </button>
+
+                  <p style={{ margin: "4px 0" }}>{game.deck.length}枚</p>
+                </div>
+
+                <div>
+                  <p style={{ textAlign: "center", margin: "4px 0" }}>場札</p>
+                  <FieldStack cards={game.fieldStack.slice(0, 3)} />
+                  <p style={{ textAlign: "center", margin: "4px 0" }}>
+                    場の数字：{game.fieldValue}
+                  </p>
+
+                  <div style={messageBoxStyle(shouldDraw || (isDobonReception && !expertMode) || isPenaltyPending)}>
+                    {game.roundOver
+                      ? game.message
+                      : isPenaltyPending
+                      ? "ドボン失敗のペナルティで2枚ドローしてください。"
+                      : isDobonReception && !expertMode
+                      ? `あと ${game.dobonTimeLeft} 秒、ドボンできます。`
+                      : game.waitingForSuitSelect && isYourTurn
+                      ? "8の効果です。条件を選んでから「スートを指定する」を押してください。"
+                      : game.pendingDrawCount > 0 && isYourTurn
+                      ? playerHasPlayableCard
+                        ? `2を出して重ねるか、山札から${game.pendingDrawCount}枚引いてください。`
+                        : `2がないので山札から${game.pendingDrawCount}枚引いてください。`
+                      : game.requestedSuits && isYourTurn
+                      ? `指定条件は ${requestedSuitsLabel(game.requestedSuits)} です。8は数字が同じなので出せます。`
+                      : isLastCardState
+                      ? "最後の1枚は出せません。山札から引いてください。"
+                      : shouldDraw
+                      ? "出せるカードがありません。山札から引いてください。"
+                      : game.message}
+                  </div>
+                </div>
+              </div>
+
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === bottomCpuPlayer.id}>
+                <CpuHand
+                  name={bottomCpuPlayer.name}
+                  hand={bottomCpuPlayer.hand}
+                  reveal={game.roundOver}
+                />
+              </TurnFrame>
+            </div>
+
+            <div style={playerPanelStyle}>
+              <div style={playerControlBoxStyle(isYourTurn && !game.roundOver)}>
+                <DirectionIndicator direction={game.direction} />
+
+                {game.requestedSuits && (
+                  <div style={requestedSuitPlayerNoticeStyle}>
+                    指定条件：{requestedSuitsLabel(game.requestedSuits)}
+                  </div>
+                )}
+
+                {game.waitingForSuitSelect && isYourTurn && (
+                  <div style={suitSelectAreaInHandStyle}>
+                    <div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+                      出せるスート条件を選んでください
+                    </div>
+
+                    <SuitSelectPanel
+                      selectedSuits={selectedSuits}
+                      toggleSuit={toggleSuit}
+                      setSelectedSuits={setSelectedSuits}
+                    />
+
+                    <button
+                      onClick={confirmSuitSelect}
+                      disabled={selectedSuits.length === 0}
+                      style={{
+                        marginTop: "10px",
+                        padding: "8px 18px",
+                        borderRadius: "999px",
+                        border: "2px solid white",
+                        backgroundColor:
+                          selectedSuits.length > 0 ? "#facc15" : "#6b7280",
+                        color: selectedSuits.length > 0 ? "#111827" : "#d1d5db",
+                        fontWeight: "bold",
+                        cursor: selectedSuits.length > 0 ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      スートを指定する
+                    </button>
+                  </div>
+                )}
+
+                <div style={beginnerBoxStyle}>
+                  <div style={{ fontSize: "14px" }}>
+                    {expertMode ? "上級者モード" : "初心者モード"}
+                  </div>
+                  {!expertMode && (
+                    <div style={{ fontSize: "18px", marginTop: "2px" }}>
+                      手札合計：{yourHandTotal}
+                    </div>
+                  )}
+                  {expertMode && (
+                    <div style={{ fontSize: "13px", marginTop: "2px", opacity: 0.85 }}>
+                      手札合計は自分で計算！失敗ドボンは2枚ドロー
+                    </div>
+                  )}
+                  <button
+                    onClick={dobon}
+                    disabled={(!expertMode && !canDobon) || isOverlayOpen || game.roundOver}
+                    style={dobonButtonStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
+                    aria-label="ドボン"
+                  >
+                    <img
+                      src="/images/dobon_logo.png"
+                      alt="ドボン"
+                      style={dobonButtonLogoStyle((canDobon || expertMode) && !isOverlayOpen && !game.roundOver)}
+                    />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isOverlayOpen) return;
+                      setMultiSelectMode((current) => !current);
+                      setSelectedCardIndexes([]);
+                      setTopCardIndex(null);
+                    }}
+                    disabled={game.roundOver || isDobonReception || isOverlayOpen}
+                    style={{
+                      marginTop: "8px",
+                      padding: "6px 16px",
+                      borderRadius: "999px",
+                      border: "2px solid white",
+                      backgroundColor: multiSelectMode ? "#22c55e" : "#374151",
+                      color: "white",
+                      fontWeight: "bold",
+                      cursor: game.roundOver || isDobonReception || isOverlayOpen ? "not-allowed" : "pointer",
+                      opacity: game.roundOver || isDobonReception || isOverlayOpen ? 0.45 : 1,
+                    }}
+                  >
+                    {multiSelectMode ? "複数枚選択中" : "複数枚出しモード"}
+                  </button>
+
+                  {multiSelectMode && selectedCardIndexes.length >= 2 && (
+                    <div style={topCardSelectBoxStyle}>
+                      <div style={{ fontSize: "12px", marginBottom: "6px" }}>
+                        上にするカードを選んでください
+                      </div>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
+                        {selectedCardIndexes.map((index) => {
+                          const card = yourHand[index];
+                          const selected = topCardIndex === index;
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => setTopCardIndex(index)}
+                              style={{
+                                padding: "6px 10px",
+                                borderRadius: "999px",
+                                border: selected ? "3px solid #facc15" : "2px solid white",
+                                backgroundColor: selected ? "#facc15" : "white",
+                                color: isRedSuit(card.suit) ? "#dc2626" : "black",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {cardLabel(card)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {multiSelectMode && (
+                    <button
+                      onClick={playSelectedCards}
+                      disabled={!canPlaySelectedCards}
+                      style={{
+                        marginTop: "8px",
+                        padding: "8px 20px",
+                        borderRadius: "999px",
+                        border: canPlaySelectedCards ? "3px solid white" : "2px solid #777",
+                        backgroundColor: canPlaySelectedCards ? "#22c55e" : "#4b5563",
+                        color: canPlaySelectedCards ? "white" : "#d1d5db",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        cursor: canPlaySelectedCards ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      選んだカードを出す
+                    </button>
+                  )}
+                </div>
+
+                <div style={handAreaStyle}>
+                  {yourHand.map((card, index) => {
+                    const playable = isYourTurn && canPlayCards([card]);
+                    const selected = selectedCardIndexes.includes(index);
+                    const center = (yourHand.length - 1) / 2;
+                    const rotate = Math.max(-10, Math.min(10, (index - center) * 2.6));
+                    const overlap =
+                      yourHand.length >= 14
+                        ? "-57px"
+                        : yourHand.length >= 12
+                        ? "-54px"
+                        : yourHand.length >= 10
+                        ? "-50px"
+                        : yourHand.length >= 8
+                        ? "-43px"
+                        : yourHand.length >= 6
+                        ? "-32px"
+                        : "-20px";
+
+                    return (
+                      <button
+                        key={`${card.suit}-${card.rank}-${index}`}
+                        onClick={() => toggleCard(index)}
+                        style={{
+                          background: "none",
+                          border: selected
+                            ? topCardIndex === index
+                              ? "4px solid #facc15"
+                              : "4px solid #22c55e"
+                            : playable
+                            ? "3px solid #facc15"
+                            : "3px solid transparent",
+                          borderRadius: "14px",
+                          padding: selected ? "2px" : "3px",
+                          marginLeft: index === 0 ? 0 : overlap,
+                          marginTop: `${Math.abs(index - center) * 2}px`,
+                          cursor: playable ? "pointer" : "not-allowed",
+                          opacity: playable ? 1 : 0.35,
+                          transform: selected
+                            ? "translateY(-14px) scale(1.04)"
+                            : `rotate(${rotate}deg)`,
+                          transformOrigin: "50% 110%",
+                          transition: "transform 0.15s, margin 0.15s, box-shadow 0.15s",
+                          zIndex: selected ? 30 : index,
+                          boxShadow: selected
+                            ? topCardIndex === index
+                              ? "0 0 18px rgba(250,204,21,0.9)"
+                              : "0 0 18px rgba(34,197,94,0.9)"
+                            : playable
+                            ? "0 0 14px rgba(250,204,21,0.8)"
+                            : "none",
+                        }}
+                      >
+                        <PlayingCard card={card} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <p style={{ marginTop: "10px", fontSize: "20px" }}>あなたの手札</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1926,6 +2222,11 @@ function AnimationStyles() {
         20% { opacity: 1; }
         100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0; }
       }
+      @keyframes flyPlayRight {
+        0% { transform: translate(245px, -10px) scale(0.78) rotate(12deg); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0; }
+      }
       @keyframes flyPlayBottom {
         0% { transform: translate(0, 190px) scale(0.78) rotate(-6deg); opacity: 0; }
         20% { opacity: 1; }
@@ -1945,6 +2246,11 @@ function AnimationStyles() {
         0% { transform: translate(-75px, 0) scale(0.9); opacity: 0; }
         20% { opacity: 1; }
         100% { transform: translate(-25px, -190px) scale(0.62) rotate(7deg); opacity: 0; }
+      }
+      @keyframes flyDrawRight {
+        0% { transform: translate(-75px, 0) scale(0.9); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translate(260px, -15px) scale(0.62) rotate(12deg); opacity: 0; }
       }
       @keyframes flyDrawBottom {
         0% { transform: translate(-75px, 0) scale(0.9); opacity: 0; }
@@ -2036,6 +2342,7 @@ function ActionAnimationOverlay({ animation }: { animation: ActionAnimation }) {
     you: "flyPlayYou",
     left: "flyPlayLeft",
     top: "flyPlayTop",
+    right: "flyPlayRight",
     bottom: "flyPlayBottom",
   };
 
@@ -2043,6 +2350,7 @@ function ActionAnimationOverlay({ animation }: { animation: ActionAnimation }) {
     you: "flyDrawYou",
     left: "flyDrawLeft",
     top: "flyDrawTop",
+    right: "flyDrawRight",
     bottom: "flyDrawBottom",
   };
 
