@@ -1491,7 +1491,11 @@ function App() {
         </div>
 
         <div style={scoreBoardStyle}>
-          <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
+          <div style={{ fontWeight: "bold",
+          lineHeight: 1.2,
+          textAlign: "center",
+          whiteSpace: "pre-line",
+          fontSize: isMobile ? "12px" : "16px", marginBottom: "4px" }}>
             {game.roundNumber} / {maxRounds} ラウンド
           </div>
 
@@ -3026,7 +3030,8 @@ function CpuHand({ name, hand, reveal }: CpuHandProps) {
           whiteSpace: "nowrap",
         }}
       >
-        {name}：{hand.length}枚
+        {isMobile ? `${name}
+${hand.length}枚` : `${name}：${hand.length}枚`}
       </div>
 
       {reveal ? (
@@ -3855,10 +3860,13 @@ const mobileGameBoardStyle: CSSProperties = {
 const mobileLeftCpuAreaStyle: CSSProperties = {
   gridArea: "left",
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "flex-start",
   alignItems: "center",
   transform: "scale(0.82)",
-  transformOrigin: "center",
+  transformOrigin: "left center",
+  width: "100%",
+  paddingLeft: "4px",
+  boxSizing: "border-box",
 };
 
 const mobileTopCpuAreaStyle: CSSProperties = {
@@ -3873,10 +3881,13 @@ const mobileTopCpuAreaStyle: CSSProperties = {
 const mobileRightCpuAreaStyle: CSSProperties = {
   gridArea: "right",
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "flex-end",
   alignItems: "center",
   transform: "scale(0.82)",
-  transformOrigin: "center",
+  transformOrigin: "right center",
+  width: "100%",
+  paddingRight: "4px",
+  boxSizing: "border-box",
 };
 
 const mobileCenterBoardAreaStyle: CSSProperties = {
