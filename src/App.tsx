@@ -1632,7 +1632,7 @@ function App() {
                     boxShadow: shouldDraw ? "0 0 18px rgba(250,204,21,0.9)" : "none",
                   }}
                 >
-                  <CardBack large extraLarge />
+                  {isMobile ? <CardBack large /> : <CardBack large extraLarge />}
                 </button>
 
                 <p style={{ margin: "4px 0" }}>{game.deck.length}枚</p>
@@ -1640,7 +1640,7 @@ function App() {
 
               <div>
                 <p style={{ textAlign: "center", margin: "4px 0" }}>場札</p>
-                <FieldStack cards={game.fieldStack.slice(0, 3)} />
+                <FieldStack cards={game.fieldStack.slice(0, 3)} small={isMobile} />
                 <p style={{ textAlign: "center", margin: "4px 0" }}>
                   場の数字：{game.fieldValue}
                 </p>
@@ -1875,7 +1875,7 @@ function App() {
                             : "none",
                         }}
                       >
-                        <PlayingCard card={card} />
+                        <PlayingCard card={card} small={small} />
                       </button>
                     );
                   })}
@@ -1922,7 +1922,7 @@ function App() {
                       boxShadow: shouldDraw ? "0 0 18px rgba(250,204,21,0.9)" : "none",
                     }}
                   >
-                    <CardBack large extraLarge />
+                    {isMobile ? <CardBack large /> : <CardBack large extraLarge />}
                   </button>
 
                   <p style={{ margin: "4px 0" }}>{game.deck.length}枚</p>
@@ -1930,7 +1930,7 @@ function App() {
 
                 <div>
                   <p style={{ textAlign: "center", margin: "4px 0" }}>場札</p>
-                  <FieldStack cards={game.fieldStack.slice(0, 3)} />
+                  <FieldStack cards={game.fieldStack.slice(0, 3)} small={isMobile} />
                   <p style={{ textAlign: "center", margin: "4px 0" }}>
                     場の数字：{game.fieldValue}
                   </p>
@@ -2520,16 +2520,16 @@ function SuitSelectPanel({
   );
 }
 
-function FieldStack({ cards }: { cards: CardType[] }) {
+function FieldStack({ cards, small = false }: { cards: CardType[]; small?: boolean }) {
   return (
-    <div style={fieldStackWrapStyle}>
+    <div style={small ? smallFieldStackWrapStyle : fieldStackWrapStyle}>
       {cards.map((card, index) => (
         <div
           key={`${card.suit}-${card.rank}-${index}`}
           style={{
             position: "absolute",
-            top: index * 7,
-            left: index * 32,
+            top: index * (small ? 5 : 7),
+            left: index * (small ? 22 : 32),
             zIndex: cards.length - index,
           }}
         >
@@ -2538,7 +2538,7 @@ function FieldStack({ cards }: { cards: CardType[] }) {
               <PlayingCard card={card} />
             </div>
           ) : (
-            <SidePeekCard card={card} />
+            <SidePeekCard card={card} small={small} />
           )}
         </div>
       ))}
@@ -2546,12 +2546,12 @@ function FieldStack({ cards }: { cards: CardType[] }) {
   );
 }
 
-function SidePeekCard({ card }: { card: CardType }) {
+function SidePeekCard({ card, small = false }: { card: CardType; small?: boolean }) {
   return (
     <div
       style={{
-        width: "70px",
-        height: "100px",
+        width: small ? "54px" : "70px",
+        height: small ? "78px" : "100px",
         backgroundColor: "white",
         color: isRedSuit(card.suit) ? "#dc2626" : "black",
         borderRadius: "9px",
@@ -2562,10 +2562,10 @@ function SidePeekCard({ card }: { card: CardType }) {
         overflow: "hidden",
       }}
     >
-      <div style={{ marginLeft: "39px", fontSize: "18px", fontWeight: "bold" }}>
+      <div style={{ marginLeft: small ? "29px" : "39px", fontSize: small ? "14px" : "18px", fontWeight: "bold" }}>
         {rankLabel(card.rank)}
       </div>
-      <div style={{ marginLeft: "39px", fontSize: "21px", fontWeight: "bold" }}>
+      <div style={{ marginLeft: small ? "29px" : "39px", fontSize: small ? "17px" : "21px", fontWeight: "bold" }}>
         {suitLabel(card.suit)}
       </div>
     </div>
@@ -3119,12 +3119,12 @@ function MiniPlayingCard({ card }: { card: CardType }) {
   );
 }
 
-function PlayingCard({ card }: { card: CardType }) {
+function PlayingCard({ card, small = false }: { card: CardType; small?: boolean }) {
   return (
     <div
       style={{
-        width: "70px",
-        height: "100px",
+        width: small ? "54px" : "70px",
+        height: small ? "78px" : "100px",
         backgroundColor: "white",
         color: isRedSuit(card.suit) ? "#dc2626" : "black",
         borderRadius: "9px",
@@ -3132,14 +3132,14 @@ function PlayingCard({ card }: { card: CardType }) {
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "8px",
-        fontSize: "16px",
+        fontSize: small ? "13px" : "16px",
         fontWeight: "bold",
         boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         boxSizing: "border-box",
       }}
     >
       <div>{rankLabel(card.rank)}</div>
-      <div style={{ textAlign: "center", fontSize: "24px" }}>
+      <div style={{ textAlign: "center", fontSize: small ? "19px" : "24px" }}>
         {suitLabel(card.suit)}
       </div>
       <div style={{ alignSelf: "flex-end" }}>{rankLabel(card.rank)}</div>
@@ -3635,6 +3635,13 @@ const topFieldCardHighlightStyle: CSSProperties = {
   backgroundColor: "rgba(250,204,21,0.18)",
 };
 
+const smallFieldStackWrapStyle: CSSProperties = {
+  position: "relative",
+  width: "98px",
+  height: "92px",
+  margin: "0 auto",
+};
+
 const fieldStackWrapStyle: CSSProperties = {
   position: "relative",
   width: "146px",
@@ -3828,7 +3835,7 @@ const tableAreaStyle: CSSProperties = {
 
 const mobileGameBoardStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "96px minmax(170px, 1fr) 96px",
+  gridTemplateColumns: "108px minmax(135px, 1fr) 108px",
   gridTemplateRows: "auto auto auto",
   gridTemplateAreas: `
     "top top top"
@@ -3879,14 +3886,14 @@ const mobileCenterBoardAreaStyle: CSSProperties = {
 const mobileCenterTableStyle: CSSProperties = {
   gridArea: "table",
   display: "flex",
-  gap: "8px",
+  gap: "5px",
   alignItems: "center",
   justifyContent: "center",
-  padding: "6px",
-  borderRadius: "18px",
+  padding: "4px",
+  borderRadius: "16px",
   backgroundColor: "rgba(0,0,0,0.18)",
   border: "1px solid rgba(255,255,255,0.14)",
-  transform: "scale(0.9)",
+  transform: "scale(0.82)",
   transformOrigin: "center",
 };
 
