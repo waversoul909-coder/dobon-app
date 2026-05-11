@@ -1587,7 +1587,7 @@ function App() {
         )}
 
         <div style={isMobile ? mobileGameBoardStyle : gameBoardStyle}>
-          <div style={leftCpuAreaStyle}>
+          <div style={isMobile ? mobileLeftCpuAreaStyle : leftCpuAreaStyle}>
             <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === leftCpuPlayer.id}>
               <CpuHand
                 name={leftCpuPlayer.name}
@@ -1597,16 +1597,18 @@ function App() {
             </TurnFrame>
           </div>
 
-          <div style={centerBoardAreaStyle}>
-            <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === topCpuPlayer.id}>
+          <div style={isMobile ? mobileCenterBoardAreaStyle : centerBoardAreaStyle}>
+            <div style={isMobile ? mobileTopCpuAreaStyle : undefined}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === topCpuPlayer.id}>
               <CpuHand
                 name={topCpuPlayer.name}
                 hand={topCpuPlayer.hand}
                 reveal={game.roundOver}
               />
             </TurnFrame>
+            </div>
 
-            <div style={centerTableStyle}>
+            <div style={isMobile ? mobileCenterTableStyle : centerTableStyle}>
               <div style={{ textAlign: "center" }}>
                 <p style={{ margin: "4px 0" }}>山札</p>
 
@@ -1660,16 +1662,18 @@ function App() {
               </div>
             </div>
 
-            <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === bottomCpuPlayer.id}>
+            <div style={isMobile ? mobileRightCpuAreaStyle : undefined}>
+              <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === bottomCpuPlayer.id}>
               <CpuHand
                 name={bottomCpuPlayer.name}
                 hand={bottomCpuPlayer.hand}
                 reveal={game.roundOver}
               />
             </TurnFrame>
+            </div>
           </div>
 
-          <div style={playerPanelStyle}>
+          <div style={isMobile ? mobilePlayerPanelStyle : playerPanelStyle}>
             <div style={playerControlBoxStyle(isYourTurn && !game.roundOver)}>
               <DirectionIndicator direction={game.direction} />
 
@@ -3516,7 +3520,13 @@ const tableAreaStyle: CSSProperties = {
 
 const mobileGameBoardStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "1fr",
+  gridTemplateColumns: "96px minmax(170px, 1fr) 96px",
+  gridTemplateRows: "auto auto auto",
+  gridTemplateAreas: `
+    "top top top"
+    "left table right"
+    "player player player"
+  `,
   gap: "6px",
   alignItems: "center",
   justifyItems: "center",
@@ -3525,6 +3535,59 @@ const mobileGameBoardStyle: CSSProperties = {
   marginTop: "0",
   flex: "none",
   minHeight: 0,
+};
+
+const mobileLeftCpuAreaStyle: CSSProperties = {
+  gridArea: "left",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  transform: "scale(0.82)",
+  transformOrigin: "center",
+};
+
+const mobileTopCpuAreaStyle: CSSProperties = {
+  gridArea: "top",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  transform: "scale(0.86)",
+  transformOrigin: "center",
+};
+
+const mobileRightCpuAreaStyle: CSSProperties = {
+  gridArea: "right",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  transform: "scale(0.82)",
+  transformOrigin: "center",
+};
+
+const mobileCenterBoardAreaStyle: CSSProperties = {
+  display: "contents",
+};
+
+const mobileCenterTableStyle: CSSProperties = {
+  gridArea: "table",
+  display: "flex",
+  gap: "8px",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "6px",
+  borderRadius: "18px",
+  backgroundColor: "rgba(0,0,0,0.18)",
+  border: "1px solid rgba(255,255,255,0.14)",
+  transform: "scale(0.9)",
+  transformOrigin: "center",
+};
+
+const mobilePlayerPanelStyle: CSSProperties = {
+  gridArea: "player",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
 };
 
 const gameBoardStyle: CSSProperties = {
