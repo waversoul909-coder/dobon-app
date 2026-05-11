@@ -1882,7 +1882,7 @@ function App() {
                             : "none",
                         }}
                       >
-                        <PlayingCard card={card} small={small} />
+                        <PlayingCard card={card} small={isMobile} />
                       </button>
                     );
                   })}
