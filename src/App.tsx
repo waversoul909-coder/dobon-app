@@ -1624,9 +1624,11 @@ function App() {
                   場の数字：{game.fieldValue}
                 </p>
 
-                <div style={messageBoxStyle(shouldDraw || (isDobonReception && !expertMode))}>
+                <div style={messageBoxStyle(shouldDraw || (isDobonReception && !expertMode) || isPenaltyPending)}>
                   {game.roundOver
                     ? game.message
+                    : isPenaltyPending
+                    ? "ドボン失敗のペナルティで2枚ドローしてください。"
                     : isDobonReception && !expertMode
                     ? `あと ${game.dobonTimeLeft} 秒、ドボンできます。`
                     : game.waitingForSuitSelect && isYourTurn
@@ -1639,12 +1641,8 @@ function App() {
                     ? `指定条件は ${requestedSuitsLabel(game.requestedSuits)} です。8は数字が同じなので出せます。`
                     : isLastCardState
                     ? "最後の1枚は出せません。山札から引いてください。"
-                    : isPenaltyPending
-                    ? "ドボン失敗のペナルティで2枚ドローしてください。"
                     : shouldDraw
                     ? "出せるカードがありません。山札から引いてください。"
-                      ? "ドボン失敗のペナルティで2枚ドローしてください。"
-                      : "出せるカードがありません。山札から引いてください。"
                     : game.message}
                 </div>
               </div>
