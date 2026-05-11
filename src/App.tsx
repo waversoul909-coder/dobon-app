@@ -2192,6 +2192,17 @@ function App() {
 function AnimationStyles() {
   return (
     <style>{`
+      html, body, #root {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        background: #064e3b;
+        overflow-x: hidden;
+      }
+      * {
+        box-sizing: border-box;
+      }
       @keyframes dealToLeft {
         0% { transform: translate(0, 0) scale(0.8) rotate(0deg); opacity: 0; }
         15% { opacity: 1; }
@@ -3469,7 +3480,7 @@ const explosionLogoWrapStyle: CSSProperties = {
 
 const mobilePageStyle: CSSProperties = {
   backgroundColor: "#064e3b",
-  width: "100vw",
+  width: "100%",
   minHeight: "100svh",
   color: "white",
   fontFamily: "sans-serif",
@@ -3481,7 +3492,7 @@ const mobilePageStyle: CSSProperties = {
 
 const pageStyle: CSSProperties = {
   backgroundColor: "#064e3b",
-  width: "100vw",
+  width: "100%",
   minHeight: "100vh",
   height: "100svh",
   color: "white",
@@ -3529,7 +3540,7 @@ const fixedButtonAreaStyle: CSSProperties = {
   position: "fixed",
   top: "12px",
   right: "12px",
-  zIndex: 30,
+  zIndex: 20,
   display: "flex",
   flexDirection: "column",
   gap: "8px",
@@ -3675,10 +3686,12 @@ const modalCloseButtonStyle: CSSProperties = {
   fontWeight: "bold",
   cursor: "pointer",
   lineHeight: 1,
+  zIndex: 120,
 };
 
 const scoreRulesWrapStyle: CSSProperties = {
   position: "relative",
+  zIndex: 90,
   width: "100%",
   maxWidth: "560px",
   backgroundColor: "rgba(0,0,0,0.35)",
@@ -3710,6 +3723,7 @@ const scoreRulesCellStyle: CSSProperties = {
 
 const scoreTableWrapStyle: CSSProperties = {
   position: "relative",
+  zIndex: 90,
   width: "100%",
   maxWidth: "920px",
   backgroundColor: "rgba(0,0,0,0.35)",
@@ -4196,6 +4210,7 @@ const ruleToggleButtonStyle: CSSProperties = {
 
 const settingsHelpWrapStyle: CSSProperties = {
   position: "relative",
+  zIndex: 90,
   width: "100%",
   maxWidth: "720px",
   maxHeight: "72vh",
