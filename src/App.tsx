@@ -91,11 +91,23 @@ function App() {
   const [visualTurnIndex, setVisualTurnIndex] = useState(0);
   const [bgmEnabled, setBgmEnabled] = useState(false);
   const [expertMode, setExpertMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgmNodesRef = useRef<{
     gain: GainNode;
     intervalId: number;
   } | null>(null);
+
+  useEffect(() => {
+    const updateIsMobile = () => {
+      setIsMobile(window.innerWidth <= 700);
+    };
+
+    updateIsMobile();
+    window.addEventListener("resize", updateIsMobile);
+
+    return () => window.removeEventListener("resize", updateIsMobile);
+  }, []);
 
   const [game, setGame] = useState<GameState>(() =>
     createRoundState({
@@ -1419,7 +1431,7 @@ function App() {
   }
 
   return (
-    <div style={pageStyle}>
+    <div style={isMobile ? mobilePageStyle : pageStyle}>
       <AnimationStyles />
       {showDealAnimation && <DealAnimationOverlay />}
       {actionAnimation && <ActionAnimationOverlay animation={actionAnimation} />}
@@ -1427,7 +1439,7 @@ function App() {
       {showDobonMissEffect && (
         <DobonMissEffect onClose={() => setShowDobonMissEffect(false)} />
       )}
-      <div style={fixedButtonAreaStyle}>
+      <div style={isMobile ? mobileFixedButtonAreaStyle : fixedButtonAreaStyle}>
         <button
           onClick={() => {
             setShowScoreRules(false);
@@ -1460,7 +1472,7 @@ function App() {
         </button>
       </div>
 
-      <div style={containerStyle}>
+      <div style={isMobile ? mobileContainerStyle : containerStyle}>
         <div style={{ margin: "0" }}>
           <div style={gameHeaderStyle}>
             <DobonLogo />
@@ -1574,7 +1586,7 @@ function App() {
           </div>
         )}
 
-        <div style={gameBoardStyle}>
+        <div style={isMobile ? mobileGameBoardStyle : gameBoardStyle}>
           <div style={leftCpuAreaStyle}>
             <TurnFrame active={!game.roundOver && visualCurrentPlayer.id === leftCpuPlayer.id}>
               <CpuHand
@@ -3131,6 +3143,18 @@ const explosionLogoWrapStyle: CSSProperties = {
   overflow: "hidden",
 };
 
+const mobilePageStyle: CSSProperties = {
+  backgroundColor: "#064e3b",
+  width: "100vw",
+  minHeight: "100svh",
+  color: "white",
+  fontFamily: "sans-serif",
+  overflowX: "hidden",
+  overflowY: "auto",
+  boxSizing: "border-box",
+  padding: "6px 4px 18px",
+};
+
 const pageStyle: CSSProperties = {
   backgroundColor: "#064e3b",
   width: "100vw",
@@ -3143,6 +3167,17 @@ const pageStyle: CSSProperties = {
   padding: "4px",
 };
 
+const mobileContainerStyle: CSSProperties = {
+  width: "100%",
+  maxWidth: "430px",
+  margin: "0 auto",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  minHeight: "100svh",
+  overflow: "visible",
+};
+
 const containerStyle: CSSProperties = {
   maxWidth: "1180px",
   margin: "0 auto",
@@ -3151,6 +3186,19 @@ const containerStyle: CSSProperties = {
   alignItems: "center",
   height: "100%",
   overflow: "hidden",
+};
+
+const mobileFixedButtonAreaStyle: CSSProperties = {
+  position: "static",
+  zIndex: 30,
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "6px",
+  width: "100%",
+  maxWidth: "420px",
+  margin: "0 auto 6px",
+  padding: "0 6px",
+  boxSizing: "border-box",
 };
 
 const fixedButtonAreaStyle: CSSProperties = {
@@ -3165,7 +3213,7 @@ const fixedButtonAreaStyle: CSSProperties = {
 };
 
 const scoreToggleButtonStyle: CSSProperties = {
-  padding: "8px 16px",
+  padding: "7px 10px",
   borderRadius: "999px",
   border: "3px solid white",
   backgroundColor: "#facc15",
@@ -3176,7 +3224,7 @@ const scoreToggleButtonStyle: CSSProperties = {
 };
 
 const scoreRuleToggleButtonStyle: CSSProperties = {
-  padding: "8px 16px",
+  padding: "7px 10px",
   borderRadius: "999px",
   border: "2px solid white",
   backgroundColor: "#1f2937",
@@ -3201,7 +3249,7 @@ function bgmToggleButtonStyle(active: boolean): CSSProperties {
 
 function modeToggleButtonStyle(active: boolean): CSSProperties {
   return {
-    padding: "8px 16px",
+    padding: "7px 10px",
     borderRadius: "999px",
     border: active ? "3px solid #facc15" : "2px solid white",
     backgroundColor: active ? "#7c3aed" : "#0f766e",
@@ -3464,6 +3512,19 @@ const tableAreaStyle: CSSProperties = {
   marginTop: "14px",
   flexWrap: "wrap",
   width: "100%",
+};
+
+const mobileGameBoardStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: "6px",
+  alignItems: "center",
+  justifyItems: "center",
+  width: "100%",
+  maxWidth: "420px",
+  marginTop: "0",
+  flex: "none",
+  minHeight: 0,
 };
 
 const gameBoardStyle: CSSProperties = {
