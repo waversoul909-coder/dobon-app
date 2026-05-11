@@ -1605,6 +1605,7 @@ function App() {
                   name={leftCpuPlayer.name}
                   hand={leftCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
             </div>
@@ -1615,6 +1616,7 @@ function App() {
                   name={bottomCpuPlayer.name}
                   hand={bottomCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
             </div>
@@ -1679,6 +1681,7 @@ function App() {
                   name={topCpuPlayer.name}
                   hand={topCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
             </div>
@@ -1896,6 +1899,7 @@ function App() {
                   name={leftCpuPlayer.name}
                   hand={leftCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
             </div>
@@ -1906,6 +1910,7 @@ function App() {
                   name={topCpuPlayer.name}
                   hand={topCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
 
@@ -1968,6 +1973,7 @@ function App() {
                   name={bottomCpuPlayer.name}
                   hand={bottomCpuPlayer.hand}
                   reveal={game.roundOver}
+                  isMobile={isMobile}
                 />
               </TurnFrame>
             </div>
@@ -3015,9 +3021,10 @@ type CpuHandProps = {
   name: string;
   hand: CardType[];
   reveal: boolean;
+  isMobile?: boolean;
 };
 
-function CpuHand({ name, hand, reveal }: CpuHandProps) {
+function CpuHand({ name, hand, reveal, isMobile = false }: CpuHandProps) {
   return (
     <div style={cpuHandWrapStyle}>
       <div
