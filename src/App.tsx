@@ -2622,11 +2622,10 @@ function ScoreHistoryTable({
   return (
     <div style={scoreTableWrapStyle}>
       <div style={scoreTableTitleRowStyle}>
-        <div style={{ fontWeight: "bold", color: "#facc15" }}>
-          ドボン表
-        </div>
-
-        <button onClick={onClose} style={scoreTableCloseButtonStyle}>
+        <span style={{ fontWeight: "bold", color: "#facc15" }}>
+          スコア表
+        </span>
+        <button onClick={onClose} style={scoreTableInlineCloseButtonStyle}>
           ×
         </button>
       </div>
@@ -3746,21 +3745,24 @@ const scoreTableTitleRowStyle: CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  gap: "12px",
+  gap: "6px",
   marginBottom: "8px",
 };
 
-const scoreTableCloseButtonStyle: CSSProperties = {
-  width: "32px",
-  height: "32px",
+const scoreTableInlineCloseButtonStyle: CSSProperties = {
+  width: "26px",
+  height: "26px",
   borderRadius: "50%",
   border: "2px solid white",
   backgroundColor: "#dc2626",
   color: "white",
-  fontSize: "20px",
+  fontSize: "17px",
   fontWeight: "bold",
   cursor: "pointer",
   lineHeight: 1,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 const scoreTableWrapStyle: CSSProperties = {
