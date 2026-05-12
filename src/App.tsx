@@ -2623,7 +2623,7 @@ function ScoreHistoryTable({
     <div style={scoreTableWrapStyle}>
       <div style={scoreTableTitleRowStyle}>
         <div style={{ fontWeight: "bold", color: "#facc15" }}>
-          スコア表
+          ドボン表
         </div>
 
         <button onClick={onClose} style={scoreTableCloseButtonStyle}>
