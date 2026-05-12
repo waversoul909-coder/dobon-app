@@ -595,6 +595,14 @@ function App() {
       .map((player) => player.id);
   }
 
+  function scheduleCpuDobonFinish(nextGame: GameState, dobonPlayerIds: number[]) {
+    window.setTimeout(() => {
+      setShowExplosion(true);
+      playDobonExplosionSound();
+      setGame(finishRound(nextGame, dobonPlayerIds));
+    }, 1000);
+  }
+
   function applyDobonReception(nextGame: GameState): GameState {
     if (nextGame.dobonPlayerIds.length === 0) {
       return {
@@ -993,7 +1001,8 @@ function App() {
     }
 
     if (cpuDobonPlayerIds.length > 0) {
-      setGame(finishRound(nextGame, nextDobonPlayerIds));
+      scheduleCpuDobonFinish(nextGame, nextDobonPlayerIds);
+      setGame(applyDobonReception(nextGame));
       return;
     }
 
@@ -1344,9 +1353,8 @@ function App() {
         }
 
         if (cpuDobonPlayerIds.length > 0) {
-          setShowExplosion(true);
-          playDobonExplosionSound();
-          return finishRound(nextGame, nextDobonPlayerIds);
+          scheduleCpuDobonFinish(nextGame, nextDobonPlayerIds);
+          return applyDobonReception(nextGame);
         }
 
         return applyDobonReception(nextGame);
@@ -2200,6 +2208,13 @@ function AnimationStyles() {
         background: #064e3b;
         overflow-x: hidden;
       }
+      body {
+        display: block;
+      }
+      #root {
+        max-width: none;
+        text-align: initial;
+      }
       * {
         box-sizing: border-box;
       }
@@ -2606,9 +2621,14 @@ function ScoreHistoryTable({
 }) {
   return (
     <div style={scoreTableWrapStyle}>
-      <button onClick={onClose} style={modalCloseButtonStyle}>×</button>
-      <div style={{ fontWeight: "bold", marginBottom: "8px", color: "#facc15" }}>
-        スコア表
+      <div style={scoreTableTitleRowStyle}>
+        <div style={{ fontWeight: "bold", color: "#facc15" }}>
+          スコア表
+        </div>
+
+        <button onClick={onClose} style={scoreTableCloseButtonStyle}>
+          ×
+        </button>
       </div>
 
       <div style={{ overflowX: "auto", width: "100%" }}>
@@ -3492,7 +3512,8 @@ const mobilePageStyle: CSSProperties = {
 
 const pageStyle: CSSProperties = {
   backgroundColor: "#064e3b",
-  width: "100%",
+  width: "100vw",
+  margin: 0,
   minHeight: "100vh",
   height: "100svh",
   color: "white",
@@ -3719,6 +3740,27 @@ const scoreRulesHeaderStyle: CSSProperties = {
 const scoreRulesCellStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.25)",
   padding: "6px",
+};
+
+const scoreTableTitleRowStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "12px",
+  marginBottom: "8px",
+};
+
+const scoreTableCloseButtonStyle: CSSProperties = {
+  width: "32px",
+  height: "32px",
+  borderRadius: "50%",
+  border: "2px solid white",
+  backgroundColor: "#dc2626",
+  color: "white",
+  fontSize: "20px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  lineHeight: 1,
 };
 
 const scoreTableWrapStyle: CSSProperties = {
